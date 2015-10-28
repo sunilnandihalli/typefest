@@ -1,15 +1,21 @@
 (ns typefest.core-test
   (:require [clojure.test :refer :all]
+            [clojure.core.async :as async]
             [typefest.core :refer :all]))
 
 (deftest moving-words-test
   (testing "move words"
-    (is (= {:board {"hello" {:x 10 :y 20}}}
-           (move-words {:board {}} "hello" 10 20)))
-    (is (= {:board {}} (move-words {:board {"hello" {:x 10 :y 79}}})))
-    (is (= {:board {"hello" {:x 10 :y 20}}} (move-words {:board {"hello" {:x 10 :y 19}}} "hello" 10 50)))
-    (is (= {:board {"hello" {:x 10 :y 20}}} (move-words {:board {"hello" {:x 10 :y 19}}})))
-    (is (= {:board {"hello" {:x 10 :y 20} "howdy" {:x 20 :y 0}}} (move-words {:board {"hello" {:x 10 :y 19}}} "howdy" 20 0)))))
+    (is (= {:board {"hello" {:x 10 :y 15}} :rows 30 :cols 100}
+           (move-words {:board {} :rows 30 :cols 100} "hello" 10 15)))
+    (is (= {:board {} :rows 30 :cols 100}
+           (move-words {:board {"hello" {:x 10 :y 26}} :rows 30 :cols 100})))
+    (is (= {:board {"hello" {:x 10 :y 11}} :rows 30 :cols 100}
+           (move-words {:board {"hello" {:x 10 :y 10}} :rows 30 :cols 100} "hello" 10 50)))
+    (is (= {:board {"hello" {:x 10 :y 11}} :rows 30 :cols 100}
+           (move-words {:board {"hello" {:x 10 :y 10}} :rows 30 :cols 100})))
+    (is (= {:board {"hello" {:x 10 :y 11} "howdy" {:x 20 :y 0}} :rows 30 :cols 100}
+           (move-words {:board {"hello" {:x 10 :y 10}} :rows 30 :cols 100} "howdy" 20 0)))))
+
 (deftest update-game-state-test
   (testing "update-game-state"
     (is (= {:board {} :users {"user-001" {"hello" 1}}}
@@ -70,6 +76,67 @@
                                              [:a 2 4] [:b 5 2]] inc))
          [[0 {:a 1 :b 1}] [2 {:a 1 :b 1 :c 1}]
           [3 {:a 1}] [4 {:a 1}] [5 {:a 1 :b 1}] [6 {:b 1}]]))))
+
+(defn print-and-ret [name]
+  (fn [x]
+    (println name " " x)
+    (flush) x))
+
+(defn tlog [ch name]
+  (async/map (print-and-ret name) [ch]))
+
+
+(deftest typebuffer-test
+  (testing "typebuffer-test"
+    (let [x (replace {\newline :enter} (seq "abcd\nefgh\ndfse"))
+          res [["a" "ab" "abc" "abcd" ""
+                "e" "ef" "efg" "efgh" ""
+                "d" "df" "dfs" "dfse"]
+               ["abcd" "efgh" "dfse"]]
+          char-chan (async/chan)
+          [buffer-chan words-chan] (typebuffer char-chan)]
+      (async/onto-chan char-chan x)
+      (is (= res
+             [(async/<!! (async/into [] buffer-chan))
+              (async/<!! (async/into [] words-chan))])))))
+
+(deftest signal-test
+  (testing "signal"
+    (let [x (async/chan)
+          y (signal x 10)]
+      (is (= 10 (async/<!! y)))
+      (async/>!! x 20)
+      (is (= 20 (async/<!! y)))
+      (async/>!! x 30)
+      (async/>!! x 40)
+      (is (= 40 (async/<!! y))))))
+
+(deftest signal-and-chan-test
+  (testing "signal-and-chan-test"
+    (let [x (async/chan)
+          [x y] (signal-and-chan x 10)])))
+
+#_(deftest publish-subscribe-test
+    (testing "publish-subscribe-test"
+      (let [pub-input (async/chan)
+            sub-output (async/chan)
+            pub-data (mapv #(format "pub-msg-%02d" %) (range 10))
+            endpoint "inproc://pub-sub-test"]
+        (subscribe-to-broadcast-endpoint endpoint sub-output)
+        (publish-to-broadcast-endpoint endpoint (tlog pub-input :pub-input))
+        (async/onto-chan pub-input pub-data)
+        (is (= pub-data (async/<!! (async/into [] (tlog sub-output :sub-output))))))))
+
+#_(deftest push-pull-test
+    (testing "push-pull-test"
+      (let [push-input (async/chan)
+            pull-output (async/chan)
+            push-data (mapv #(format "push-msg-%02d" %) (range 10))
+            endpoint "inproc://push-pull-test"]
+        (put-to-push-endpoint endpoint (tlog push-input :push-input))
+        (take-from-pull-endpoint endpoint pull-output)
+        (async/onto-chan push-input push-data)
+        (is (= push-data (async/<!! (async/into [] (tlog pull-output :pull-output))))))))
 
 (deftest contiguous-seq-splitter-test
   (testing "contiguous-seq-splitter"
