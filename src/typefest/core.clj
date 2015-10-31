@@ -8,8 +8,6 @@
             [superstring.core :as ss]
             [clojure.string :as str]
             [com.rpl.specter :as spctr]
-            [clj-sockets.core :as skt]
-            [com.gearswithingears.async-sockets :as askt]
             [clojure.data :as cdata]
             [clojure.pprint :as pp]
             [clojure.java.io :as io]
@@ -205,7 +203,7 @@
 (defn server-chans []
   (let [broadcast-chan (async/chan)
         entries-chan (async/chan)
-        game-duration-in-minutes (/ 1 4)
+        game-duration-in-minutes (/ 1 1)
         game-over-channel (async/timeout (* game-duration-in-minutes 60 1000))
         delay 500]
     (async/go

@@ -15,9 +15,23 @@
                  [org.clojure/test.check "0.8.2"]
                  [fullcontact/full.async "0.8.13"]
                  [com.rpl/specter "0.8.0"]
-                 [clj-sockets "0.1.0"]
-                 [org.clojars.sunilnandihalli/async-sockets "0.1.2"]
-                 [clojure-lanterna "0.9.4"]]
+                 ;[clj-sockets "0.1.0"]
+                 ;[org.clojars.sunilnandihalli/async-sockets "0.1.2"]
+                 [clojure-lanterna "0.9.4"]
+                 [com.badlogicgames.gdx/gdx "1.7.0"]
+                 [com.badlogicgames.gdx/gdx-backend-lwjgl "1.7.0"]
+                 [com.badlogicgames.gdx/gdx-box2d "1.7.0"]
+                 [com.badlogicgames.gdx/gdx-box2d-platform "1.7.0"
+                  :classifier "natives-desktop"]
+                 [com.badlogicgames.gdx/gdx-bullet "1.7.0"]
+                 [com.badlogicgames.gdx/gdx-bullet-platform "1.7.0"
+                  :classifier "natives-desktop"]
+                 [com.badlogicgames.gdx/gdx-platform "1.7.0"
+                  :classifier "natives-desktop"]
+                 [org.clojure/clojure "1.7.0"]
+                 [play-clj "0.4.7"]]
+  :source-paths ["src" "src-common"]
+  :javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   :jvm-opts ["-Djava.library.path=/usr/lib:/usr/local/lib"]
   :main ^:skip-aot typefest.core
   :target-path "target/%s"
