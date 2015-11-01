@@ -1,36 +1,5 @@
 # typefest
 
-FIXME: description
+A simple game created to learn typing. This can be played over a network. It uses zmq for messaging both in single-user and distributed mode.
+It uses lanterna to build a simple terminal based ui. There are falling words which one needs to type to get points.
 
-## Installation
-
-Download from http://example.com/FIXME.
-
-## Usage
-
-FIXME: explanation
-
-    $ java -jar typefest-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2015 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
