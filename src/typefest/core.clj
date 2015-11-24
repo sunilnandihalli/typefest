@@ -63,3 +63,11 @@
                   "client" client
                   "server" server
                   (partial single-user sub-command)) args))))))
+
+#_ (do
+     (import 'clojure.lang.PersistentQueue)
+     (loop [x clojure.lang.PersistentQueue/EMPTY i 0]
+       (println :i i :x (seq x) :front (peek x))
+       (when (< i 10)
+         (if (= 0 (mod i 3)) (recur (pop x) (inc i))
+             (recur (conj x (+ 10 (* i 2))) (inc i))))))
